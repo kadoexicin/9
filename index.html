@@ -1,0 +1,121 @@
+import tkinter as tk
+from tkinter import messagebox
+import random
+
+# Ana pencere
+root = tk.Tk()
+root.title("Kadoex için Özel Tic Tac Toe")
+root.geometry("600x600")
+root.config(bg="black")
+
+# Harf harf yazma mesajlar
+messages = [
+    "⚡ BU SİTE EDO (EDİZ) TARAFINDAN KADOEX’E ÖZEL HAZIRLANMIŞTIR ⚡",
+    "🌟 Selam Kadoex Abe İyi Akşamlar 🌟",
+    "Bu senin için kodladığım bir site",
+    "🔥 Abi büyük hayranınım, inşallah 1 milyon olursun 🔥"
+]
+
+msg_labels = []
+y_pos = 10
+for msg in messages:
+    lbl = tk.Label(root, text="", font=("Arial Black", 14), fg="white", bg="black")
+    lbl.place(x=20, y=y_pos)
+    y_pos += 30
+    msg_labels.append(lbl)
+
+def typewriter(msg, lbl, index=0):
+    if index < len(msg):
+        lbl.config(text=lbl.cget("text") + msg[index])
+        root.after(50, typewriter, msg, lbl, index+1)
+
+for i, lbl in enumerate(msg_labels):
+    root.after(i*1500, typewriter, messages[i], lbl)
+
+# Kayan yıldızlar
+stars = []
+for _ in range(50):
+    x = random.randint(0, 580)
+    y = random.randint(0, 580)
+    star = tk.Label(root, text="*", fg="white", bg="black")
+    star.place(x=x, y=y)
+    stars.append(star)
+
+def move_stars():
+    for star in stars:
+        x, y = star.winfo_x(), star.winfo_y()
+        y += 5
+        if y > 600:
+            y = 0
+            x = random.randint(0,580)
+        star.place(x=x, y=y)
+    root.after(100, move_stars)
+move_stars()
+
+# Tic Tac Toe 5x5
+board = [["" for _ in range(5)] for _ in range(5)]
+current_player = "X"
+cells = []
+
+def check_win():
+    # Satırlar
+    for r in range(5):
+        if all(board[r][c] == current_player for c in range(5)):
+            return True
+    # Sütunlar
+    for c in range(5):
+        if all(board[r][c] == current_player for r in range(5)):
+            return True
+    # Çapraz
+    if all(board[i][i] == current_player for i in range(5)):
+        return True
+    if all(board[i][4-i] == current_player for i in range(5)):
+        return True
+    return False
+
+def make_move(r,c):
+    global current_player
+    if board[r][c]=="":
+        board[r][c] = current_player
+        cells[r][c].config(text=current_player, fg="cyan" if current_player=="X" else "orange")
+        if check_win():
+            messagebox.showinfo("Tebrikler!", f"{current_player} kazandı!")
+            reset_board()
+        else:
+            current_player = "O" if current_player=="X" else "X"
+
+def reset_board():
+    global board, current_player
+    board = [["" for _ in range(5)] for _ in range(5)]
+    current_player = "X"
+    for r in range(5):
+        for c in range(5):
+            cells[r][c].config(text="")
+
+frame = tk.Frame(root, bg="black")
+frame.place(x=100, y=200)
+
+for r in range(5):
+    row = []
+    for c in range(5):
+        btn = tk.Button(frame, text="", font=("Arial Black", 18), width=4, height=2,
+                        command=lambda r=r, c=c: make_move(r,c), bg="black", fg="white",
+                        activebackground="gray", activeforeground="yellow")
+        btn.grid(row=r, column=c, padx=5, pady=5)
+        row.append(btn)
+    cells.append(row)
+
+# Butonlar
+def surprise():
+    messagebox.showinfo("Sürpriz!", "🎉 Sürpriz! Kadoex harika birisidir! 🎉")
+
+def loveMessage():
+    messagebox.showinfo("Mesaj", "SENİ ÇOK SEVİYOM ABİ 💖")
+
+btn1 = tk.Button(root, text="Sürprizi Göster 🎁", font=("Arial Black",12), command=surprise)
+btn1.place(x=50, y=520)
+
+btn2 = tk.Button(root, text="💖 Mesajı Göster 💖", font=("Arial Black",12), command=loveMessage)
+btn2.place(x=350, y=520)
+
+root.mainloop()
